@@ -21,20 +21,19 @@
       </section>
 
       <section class="settings-panel" id="settingsPanel" hidden>
-        <label for="webhookUrl">n8n Webhook URL</label>
+        <label for="webhookUrl">公开服务接口 URL</label>
         <div class="inline-field">
           <input
             id="webhookUrl"
             type="url"
             inputmode="url"
-            placeholder="http://电脑局域网IP:5678/webhook/product-compliance-recommend"
+            placeholder="https://你的公网 n8n/webhook/product-compliance-recommend"
             autocomplete="url"
           />
           <button id="saveWebhook" type="button">保存</button>
         </div>
         <p class="hint">
-          手机访问时不要用 localhost。请把地址改成电脑局域网 IP，例如
-          <code>http://192.168.1.8:5678/webhook/product-compliance-recommend</code>。
+          这里必须填写公网 HTTPS 地址。没有填写时，App 会直接生成可分享的基础合规报告，不会请求你电脑上的本地 n8n。
         </p>
       </section>
 
@@ -44,14 +43,8 @@
           <label for="productName">产品名称 <span>必填</span></label>
           <input id="productName" name="product_name" required placeholder="例如：儿童保温杯" />
 
-          <label for="useCase">使用场景</label>
-          <input id="useCase" name="use_case" placeholder="例如：小学生日常上学使用" />
-
           <label for="budget">预算</label>
           <input id="budget" name="budget" placeholder="例如：100元以内" />
-
-          <label for="region">购买地区</label>
-          <input id="region" name="region" value="中国大陆" />
 
           <label for="extraRequirements">特殊要求</label>
           <textarea
