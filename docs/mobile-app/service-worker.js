@@ -1,9 +1,9 @@
-const CACHE_NAME = "product-standard-compliance-mobile-v3";
+const CACHE_NAME = "product-standard-compliance-mobile-v4";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./styles.css",
-  "./app.js",
+  "./app.js?v=4",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
