@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f766e" />
+    <title>产品标准合规推荐助手</title>
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero" aria-labelledby="app-title">
+        <div>
+          <p class="eyebrow">Product Standard Compliance Agent</p>
+          <h1 id="app-title">产品标准合规推荐助手</h1>
+          <p class="subhead">先查标准，再看证据，最后生成可解释的商品推荐报告。</p>
+        </div>
+        <button class="ghost-button" id="settingsToggle" type="button">设置</button>
+      </section>
+
+      <section class="settings-panel" id="settingsPanel" hidden>
+        <label for="webhookUrl">n8n Webhook URL</label>
+        <div class="inline-field">
+          <input
+            id="webhookUrl"
+            type="url"
+            inputmode="url"
+            placeholder="http://电脑局域网IP:5678/webhook/product-compliance-recommend"
+            autocomplete="url"
+          />
+          <button id="saveWebhook" type="button">保存</button>
+        </div>
+        <p class="hint">
+          手机访问时不要用 localhost。请把地址改成电脑局域网 IP，例如
+          <code>http://192.168.1.8:5678/webhook/product-compliance-recommend</code>。
+        </p>
+      </section>
+
+      <section class="input-panel" aria-labelledby="form-title">
+        <h2 id="form-title">输入产品需求</h2>
+        <form id="recommendationForm">
+          <label for="productName">产品名称 <span>必填</span></label>
+          <input id="productName" name="product_name" required placeholder="例如：儿童保温杯" />
+
+          <label for="useCase">使用场景</label>
+          <input id="useCase" name="use_case" placeholder="例如：小学生日常上学使用" />
+
+          <label for="budget">预算</label>
+          <input id="budget" name="budget" placeholder="例如：100元以内" />
+
+          <label for="region">购买地区</label>
+          <input id="region" name="region" value="中国大陆" />
+
+          <label for="extraRequirements">特殊要求</label>
+          <textarea
+            id="extraRequirements"
+            name="extra_requirements"
+            rows="4"
+            placeholder="例如：安全、防漏、材质合规、有执行标准说明"
+          ></textarea>
+
+          <div class="actions">
+            <button class="primary-button" id="submitButton" type="submit">生成合规推荐报告</button>
+            <button class="secondary-button" id="demoButton" type="button">查看 Demo</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="status-panel" id="statusPanel" hidden>
+        <div class="spinner" aria-hidden="true"></div>
+        <p id="statusText">正在检索标准和商品证据...</p>
+      </section>
+
+      <section class="result-panel" id="resultPanel" hidden aria-live="polite">
+        <div class="result-toolbar">
+          <div>
+            <p class="eyebrow">Report</p>
+            <h2>推荐报告</h2>
+          </div>
+          <button class="ghost-button" id="copyReport" type="button">复制</button>
+        </div>
+        <article class="report" id="report"></article>
+      </section>
+
+      <section class="history-panel" id="historyPanel" hidden>
+        <h2>最近一次查询</h2>
+        <div id="historyContent"></div>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
