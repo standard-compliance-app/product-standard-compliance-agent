@@ -1,4 +1,4 @@
-const DEFAULT_WEBHOOK = "http://localhost:5678/webhook/product-compliance-recommend";
+const DEFAULT_WEBHOOK = "";
 const STORAGE_KEYS = {
   webhook: "pscra_webhook_url",
   lastReport: "pscra_last_report",
@@ -65,8 +65,8 @@ settingsToggle.addEventListener("click", () => {
 
 saveWebhook.addEventListener("click", () => {
   const value = webhookInput.value.trim();
-  if (!value) {
-    showError("请先填写 n8n Webhook URL。");
+  if (value && !isPublicHttpsUrl(value)) {
+    showError("请填写公网 HTTPS 服务接口。手机和其他用户无法访问 localhost、127.0.0.1 或局域网 IP。");
     return;
   }
   localStorage.setItem(STORAGE_KEYS.webhook, value);
@@ -83,6 +83,13 @@ form.addEventListener("submit", async (event) => {
 
   const webhookUrl = webhookInput.value.trim() || DEFAULT_WEBHOOK;
   localStorage.setItem(STORAGE_KEYS.webhook, webhookUrl);
+
+  if (!isPublicHttpsUrl(webhookUrl)) {
+    const content = buildFallbackReport(payload, "当前链接未连接公网 n8n 服务，已生成基础合规报告。");
+    renderReport(content);
+    saveLast(payload, content);
+    return;
+  }
 
   setLoading(true, "正在检索标准和商品证据...");
   try {
@@ -101,9 +108,9 @@ form.addEventListener("submit", async (event) => {
     renderReport(content);
     saveLast(payload, content);
   } catch (error) {
-    showError(
-      `请求 n8n 失败：${error.message}\n\n手机使用时请确认：\n1. n8n workflow 已激活；\n2. Webhook URL 使用电脑局域网 IP，不是 localhost；\n3. 手机和电脑在同一 Wi-Fi；\n4. 防火墙允许访问 5678 端口。`
-    );
+    const content = buildFallbackReport(payload, "公网服务暂时不可用，已生成基础合规报告。");
+    renderReport(content);
+    saveLast(payload, content);
   } finally {
     setLoading(false);
   }
@@ -127,11 +134,63 @@ copyReport.addEventListener("click", async () => {
 function getPayload() {
   return {
     product_name: document.querySelector("#productName").value.trim(),
-    use_case: document.querySelector("#useCase").value.trim(),
     budget: document.querySelector("#budget").value.trim(),
-    region: document.querySelector("#region").value.trim() || "中国大陆",
     extra_requirements: document.querySelector("#extraRequirements").value.trim()
   };
+}
+
+function isPublicHttpsUrl(value) {
+  if (!value) return false;
+  try {
+    const url = new URL(value);
+    const host = url.hostname.toLowerCase();
+    if (url.protocol !== "https:") return false;
+    if (host === "localhost" || host === "127.0.0.1" || host === "::1") return false;
+    if (/^(10|127)\./.test(host)) return false;
+    if (/^192\.168\./.test(host)) return false;
+    if (/^172\.(1[6-9]|2\d|3[01])\./.test(host)) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function buildFallbackReport(input, note) {
+  const product = input.product_name || "待查询产品";
+  const budget = input.budget || "未填写";
+  const requirements = input.extra_requirements || "未填写";
+
+  return `# 产品标准合规推荐报告
+
+> ${note}
+
+## 一、产品需求
+
+| 项目 | 内容 |
+|---|---|
+| 产品名称 | ${product} |
+| 预算 | ${budget} |
+| 特殊要求 | ${requirements} |
+
+## 二、购买前合规检查
+
+- 优先选择外包装、详情页或说明书明确标注执行标准的商品。
+- 查看材质、适用年龄、生产企业、生产日期、检测报告或合格证明是否完整。
+- 对儿童、食品接触、电器、纺织、化妆品等高风险品类，重点确认是否涉及强制性标准或认证要求。
+- 不要只看销量和低价，缺少标准编号、检测依据或主体信息的商品应谨慎购买。
+
+## 三、推荐筛选规则
+
+| 维度 | 建议 |
+|---|---|
+| 标准信息 | 有清晰执行标准编号，且标准名称与产品类别匹配 |
+| 证据完整度 | 商品页、包装、检测报告、客服说明能互相印证 |
+| 风险提示 | 对材质、年龄、容量、功率、适用范围等限制有明确说明 |
+| 售后主体 | 店铺和生产企业信息完整，可追溯 |
+
+## 四、下一步
+
+如需生成真实联网推荐结果，请把 n8n workflow 部署到公网 HTTPS 地址，例如 n8n Cloud、云服务器或反向代理后的域名，然后在右上角“设置”里填写该 Webhook。`;
 }
 
 function setLoading(isLoading, message = "") {
