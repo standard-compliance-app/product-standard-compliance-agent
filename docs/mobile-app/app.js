@@ -2,8 +2,10 @@ const DEFAULT_WEBHOOK = "";
 const STORAGE_KEYS = {
   webhook: "pscra_webhook_url",
   lastReport: "pscra_last_report",
-  lastInput: "pscra_last_input"
+  lastInput: "pscra_last_input",
+  appVersion: "pscra_app_version"
 };
+const APP_VERSION = "4";
 
 const form = document.querySelector("#recommendationForm");
 const settingsToggle = document.querySelector("#settingsToggle");
@@ -55,6 +57,11 @@ const demoReport = `# 产品标准合规推荐报告
 以上结果仅为 Demo，不构成真实购买建议、检测结论、法律意见或官方认证结论。`;
 
 function init() {
+  if (localStorage.getItem(STORAGE_KEYS.appVersion) !== APP_VERSION) {
+    localStorage.removeItem(STORAGE_KEYS.lastReport);
+    localStorage.removeItem(STORAGE_KEYS.lastInput);
+    localStorage.setItem(STORAGE_KEYS.appVersion, APP_VERSION);
+  }
   webhookInput.value = localStorage.getItem(STORAGE_KEYS.webhook) || DEFAULT_WEBHOOK;
   restoreLastReport();
 }
