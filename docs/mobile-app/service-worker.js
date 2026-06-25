@@ -1,4 +1,4 @@
-const CACHE_NAME = "product-standard-compliance-mobile-v2";
+const CACHE_NAME = "product-standard-compliance-mobile-v3";
 const APP_SHELL = [
   "./",
   "./index.html",
